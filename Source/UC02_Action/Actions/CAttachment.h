@@ -4,6 +4,9 @@
 #include "GameFramework/Actor.h"
 #include "CAttachment.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FAttachmentBeginOvelap, class ACharacter*, InAttacker, class AActor*, InAttackCauser, class ACharacter*, InOtherCharacter);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FAttachmentEndOvelap, class ACharacter*, InAttacker, class AActor*, InAttackCauser, class ACharacter*, InOtherCharacter);
+
 UCLASS()
 class UC02_ACTION_API ACAttachment : public AActor
 {
@@ -33,6 +36,21 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+private:
+	UFUNCTION()
+		void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+		void OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+
+public:
+	UPROPERTY(BlueprintAssignable)
+		FAttachmentBeginOvelap OnAttachmentBeginOvelap;
+
+	UPROPERTY(BlueprintAssignable)
+		FAttachmentEndOvelap OnAttachmentEndOvelap;
+
 protected:
 	UPROPERTY(BlueprintReadOnly)
 		class ACharacter* OwnerCharacter;
@@ -42,7 +60,7 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 		class UCStatusComponent* Status;
-};
 
-// (6Param) UPrimitiveComponent, OnComponentBeginOverlap, UPrimitiveComponent*, OverlappedComponent, AActor*, OtherActor, UPrimitiveComponent*, OtherComp, int32, OtherBodyIndex, bool, bFromSweep, const FHitResult &, SweepResult
-// (4Param) UPrimitiveComponent, OnComponentEndOverlap, UPrimitiveComponent*, OverlappedComponent, AActor*, OtherActor, UPrimitiveComponent*, OtherComp, int32, OtherBodyIndex
+private:
+	TArray<class UShapeComponent*> ShapeComponents;
+};

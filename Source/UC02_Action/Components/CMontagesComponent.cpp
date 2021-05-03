@@ -40,6 +40,16 @@ void UCMontagesComponent::PlayBackStep()
 	PlayAnimMontage(EStateType::BackStep);
 }
 
+void UCMontagesComponent::PlayHitted()
+{
+	PlayAnimMontage(EStateType::Hitted);
+}
+
+void UCMontagesComponent::PlayDead()
+{
+	PlayAnimMontage(EStateType::Dead);
+}
+
 
 void UCMontagesComponent::PlayAnimMontage(EStateType InStateType)
 {

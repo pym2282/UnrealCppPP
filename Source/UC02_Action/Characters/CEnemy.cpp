@@ -55,6 +55,16 @@ ACEnemy::ACEnemy()
 	HealthWidget->SetWidgetSpace(EWidgetSpace::Screen);
 }
 
+float ACEnemy::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	DamageInstigator = EventInstigator;
+	DamageValue = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+
+	State->SetHittedMode();
+
+	return Status->GetHealth();
+}
+
 void ACEnemy::BeginPlay()
 {
 	UMaterialInstanceConstant* body;
@@ -68,6 +78,8 @@ void ACEnemy::BeginPlay()
 
 	GetMesh()->SetMaterial(0, BodyMaterial);
 	GetMesh()->SetMaterial(1, LogoMaterial);
+
+	State->OnStateTypeChanged.AddDynamic(this, &ACEnemy::OnStateTypeChanged);
 
 	Super::BeginPlay();
 
@@ -85,4 +97,48 @@ void ACEnemy::ChangeColor(FLinearColor InColor)
 {
 	BodyMaterial->SetVectorParameterValue("BodyColor", InColor);
 	LogoMaterial->SetVectorParameterValue("BodyColor", InColor);
+}
+
+void ACEnemy::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
+{
+	switch (InNewType)
+	{
+		case EStateType::Hitted: Hitted(); break;
+		case EStateType::Dead: Dead(); break;
+	}
+}
+
+void ACEnemy::Hitted()
+{
+	//	Adjust Health Widhet
+	Status->SubHealth(DamageValue);
+	DamageValue = 0.0f;
+
+	Cast<UCUserWidget_Health>(HealthWidget->GetUserWidgetObject())->Update(Status->GetHealth(), Status->GetMaxHealth());
+
+	//	Check Dead
+	if (Status->GetHealth() <= 0.0f)
+	{
+		State->SetDeadMode();
+		return;
+	}
+
+	//	Play Hitted Montage
+	Montages->PlayHitted();
+
+	//Look At Attacker
+	FVector start = GetActorLocation();
+	FVector target = DamageInstigator->GetPawn()->GetActorLocation();
+	SetActorRotation(UKismetMathLibrary::FindLookAtRotation(start, target));
+
+	FVector direction = target - start;
+	//direction.Normalize();
+	LaunchCharacter(-direction * LaunchValue, true, false);
+
+}
+
+void ACEnemy::Dead()
+{
+
+	Montages->PlayDead();
 }

@@ -42,6 +42,12 @@ void UCActionData::BeginPlay(class ACharacter* InOwnerCharacter)
 		DoAction->SetDatas(DoActionDatas);
 
 		UGameplayStatics::FinishSpawningActor(DoAction, transform);
+
+		if (!!Attachment)
+		{
+			Attachment->OnAttachmentBeginOvelap.AddDynamic(DoAction, &ACDoAction::OnAttachmentBeginOverlap);
+			Attachment->OnAttachmentEndOvelap.AddDynamic(DoAction, &ACDoAction::OnAttachmentEndOverlap);
+		}
 	}
 
 }

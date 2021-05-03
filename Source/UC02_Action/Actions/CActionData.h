@@ -60,6 +60,7 @@ class UC02_ACTION_API UCActionData : public UDataAsset
 
 public:
 	FORCEINLINE class ACEquipment* GetEquipment() { return Equipment; }
+	FORCEINLINE class ACAttachment* GetAttachment() { return Attachment; }
 	FORCEINLINE class ACDoAction* GetDoAction() { return DoAction; }
 
 public:
