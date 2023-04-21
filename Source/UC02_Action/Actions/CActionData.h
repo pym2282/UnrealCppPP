@@ -47,7 +47,7 @@ public:
 		FTransform EffectTransform;
 
 	UPROPERTY(EditAnywhere)
-		TSubclassOf<class UCameraShake> ShakeClass;
+		TSubclassOf<class UCameraShakeBase> ShakeClass;
 
 };
 
